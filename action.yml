@@ -1,6 +1,9 @@
 name: 'Build and push Docker images with versions'
 description: 'Composite run steps action for building, pushing and versioning Docker images'
 author: 'trueberryless'
+branding:
+  icon: 'package'  
+  color: 'green'
 inputs:
   IMAGE_NAME:
     description: 'Author and name of image'
