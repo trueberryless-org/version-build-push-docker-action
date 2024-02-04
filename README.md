@@ -63,3 +63,5 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 ```
+
+When you trigger the action by workflow dispatch (by manually clicking `run action` in the actions tab), it automatically creates a `patch` version.
