@@ -1,5 +1,7 @@
 # Usage
 
+## Minimal
+
 ```
 on: [push]
 
@@ -8,11 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and push docker image to docker hub
     steps:
-      - id: foo
+      - id: build-and-push-to-docker-hub
         uses: trueberryless-org/build-and-push-to-docker-hub@main
         with:
           IMAGE_NAME: trueberryless/mutanuq
-          REGISTRY: docker.io                                   # optional
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 ```
