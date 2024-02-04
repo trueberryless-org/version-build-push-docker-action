@@ -1,6 +1,22 @@
-# Usage
+# Build and push docker images with versioning action
 
-## Minimal usage
+This action simply takes some inputs (Dockerfile in root dir of repo, image name and docker credentials) and publishes a new docker image on the registry every time you include some form of `version` in your commit message.
+
+## Workflow
+
+When writing the commit message, remember to include a second message with three posible options:
+
+```bash
+git commit -m "some changes" -m "version-patch"
+git commit -m "heacy changes" -m "version-minor"
+git commit -m "damn changes" -m "version-major"
+```
+
+You need not to write it exactly this way, as long as the word `version` and the additional semantic versioning level is included (`major`, `minor` or `patch`).
+
+## Usage
+
+### Minimal usage
 
 ```yaml 
 on: [push]
@@ -18,7 +34,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 ```
 
-## Optimal usage
+### Optimal usage
 
 ```yaml
 name: Docker Image Push
