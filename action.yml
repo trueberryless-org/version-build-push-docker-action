@@ -25,40 +25,61 @@ runs:
   steps:
     - name: Check out the repo
       uses: actions/checkout@v4
+
+    - name: Get Docker Image Version
+        id: version
+        run: |
+          IMAGE_NAME="your-docker-registry/your-image-name"
+          DOCKER_TAGS=$(docker tags --format '{{.Name}}' $IMAGE_NAME)
+          
+          # Assuming tags follow semantic versioning format (e.g., 1.2.3)
+          PATCH_VERSION=$(echo "$DOCKER_TAGS" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
+          MINOR_VERSION=$(echo "$PATCH_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
+          MAJOR_VERSION=$(echo "$MINOR_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
+
+          echo "PATCH_VERSION=$PATCH_VERSION" >> $GITHUB_ENV
+          echo "MINOR_VERSION=$MINOR_VERSION" >> $GITHUB_ENV
+          echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
+
+      - name: Show Docker Image Version
+        run: |
+          echo "Patch Version: $PATCH_VERSION"
+          echo "Minor Version: $MINOR_VERSION"
+          echo "Major Version: $MAJOR_VERSION"
     
-    - name: Check if file exists
-      shell: bash
-      run: |
-        if [ -f .github/actions/version-build-push-docker/version.json ]; then
-          echo "File exists"
-          echo "FILE_EXISTS=true" >> $GITHUB_ENV
-        else
-          echo "File does not exist"
-          echo "FILE_EXISTS=false" >> $GITHUB_ENV
-        fi
+    # - name: Check if file exists
+    #   shell: bash
+    #   run: |
+    #     if [ -f .github/actions/version-build-push-docker/version.json ]; then
+    #       echo "File exists"
+    #       echo "FILE_EXISTS=true" >> $GITHUB_ENV
+    #     else
+    #       echo "File does not exist"
+    #       echo "FILE_EXISTS=false" >> $GITHUB_ENV
+    #     fi
     
-    - name: read_json
-      if: ${{ env.FILE_EXISTS == 'true' }}
-      id: version
-      uses: zoexx/github-action-json-file-properties@release
-      with:
-        file_path: ".github/actions/version-build-push-docker/version.json"
+    # - name: read_json
+    #   if: ${{ env.FILE_EXISTS == 'true' }}
+    #   id: version
+    #   uses: zoexx/github-action-json-file-properties@release
+    #   with:
+    #     file_path: ".github/actions/version-build-push-docker/version.json"
         
-    - name: save environment variables
-      shell: bash
-      if: ${{ env.FILE_EXISTS == 'true' }}
-      run: |
-        echo "MAJOR=${{steps.version.outputs.major}}" >> $GITHUB_ENV
-        echo "MINOR=${{steps.version.outputs.minor}}" >> $GITHUB_ENV
-        echo "PATCH=${{steps.version.outputs.patch}}" >> $GITHUB_ENV
+    # - name: save environment variables
+    #   shell: bash
+    #   if: ${{ env.FILE_EXISTS == 'true' }}
+    #   run: |
+    #     echo "MAJOR=${{steps.version.outputs.major}}" >> $GITHUB_ENV
+    #     echo "MINOR=${{steps.version.outputs.minor}}" >> $GITHUB_ENV
+    #     echo "PATCH=${{steps.version.outputs.patch}}" >> $GITHUB_ENV
         
-    - name: create environment variables
-      shell: bash
-      if: ${{ env.FILE_EXISTS == 'false' }}
-      run: |
-        echo "MAJOR=0" >> $GITHUB_ENV
-        echo "MINOR=0" >> $GITHUB_ENV
-        echo "PATCH=0" >> $GITHUB_ENV          
+    # - name: create environment variables
+    #   shell: bash
+    #   if: ${{ env.FILE_EXISTS == 'false' }}
+    #   run: |
+    #     echo "MAJOR=0" >> $GITHUB_ENV
+    #     echo "MINOR=0" >> $GITHUB_ENV
+    #     echo "PATCH=0" >> $GITHUB_ENV          
     
     - name: echo environment variables
       shell: bash
