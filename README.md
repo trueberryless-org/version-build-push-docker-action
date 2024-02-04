@@ -2,7 +2,7 @@
 
 ## Minimal
 
-```
+```yaml 
 on: [push]
 
 jobs:
