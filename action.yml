@@ -1,9 +1,10 @@
-name: 'Build and push Docker images with versions'
-description: 'Composite run steps action for building, pushing and versioning Docker images'
-author: 'trueberryless'
+name: build-and-push-to-docker-hub
+description: Composite run steps action for building, pushing and versioning Docker images
+author: trueberryless
 branding:
   icon: 'package'  
   color: 'green'
+
 inputs:
   IMAGE_NAME:
     description: 'Author and name of image'
@@ -12,14 +13,16 @@ inputs:
     description: 'Registry for versioning, storing and distributing images (e.g., docker.io)'
     required: false
     default: 'docker.io'
+
 runs:
   using: "composite"
-  if: contains(github.event.head_commit.message, 'version') || github.event_name == 'workflow_dispatch'
   steps:
     - name: Check out the repo
+      shell: bash
       uses: actions/checkout@v3
     
     - name: Check if file exists
+      shell: bash
       run: |
         if [ -f .github/actions/version-build-push-docker/version.json ]; then
           echo "File exists"
@@ -30,6 +33,7 @@ runs:
         fi
     
     - name: read_json
+      shell: bash
       if: ${{ env.FILE_EXISTS == 'true' }}
       id: version
       uses: zoexx/github-action-json-file-properties@release
@@ -37,13 +41,15 @@ runs:
         file_path: ".github/actions/version-build-push-docker/version.json"
         
     - name: save environment variables
+      shell: bash
       if: ${{ env.FILE_EXISTS == 'true' }}
       run: |
         echo "MAJOR=${{steps.version.outputs.major}}" >> $GITHUB_ENV
         echo "MINOR=${{steps.version.outputs.minor}}" >> $GITHUB_ENV
         echo "PATCH=${{steps.version.outputs.patch}}" >> $GITHUB_ENV
         
-    - name: create environment variables        
+    - name: create environment variables
+      shell: bash
       if: ${{ env.FILE_EXISTS == 'false' }}
       run: |
         echo "MAJOR=0" >> $GITHUB_ENV
@@ -51,12 +57,14 @@ runs:
         echo "PATCH=0" >> $GITHUB_ENV          
     
     - name: echo environment variables
+      shell: bash
       run: |
         echo ${{ env.MINOR }}
         echo ${{ env.MINOR }}
         echo ${{ env.MINOR }}
     
     - name: Major version
+      shell: bash
       if: contains(github.event.head_commit.message, 'major')
       run: |
         echo "New major version"
@@ -65,6 +73,7 @@ runs:
         echo "PATCH=0" >> $GITHUB_ENV
 
     - name: Minor version
+      shell: bash
       if: contains(github.event.head_commit.message, 'minor')
       run: |
         echo "New minor version"
@@ -72,27 +81,32 @@ runs:
         echo "PATCH=0" >> $GITHUB_ENV
       
     - name: Patch version
+      shell: bash
       if: contains(github.event.head_commit.message, 'patch') || github.event_name == 'workflow_dispatch'
       run: |
         echo "New patch version"
         echo "PATCH=$((${{ env.PATCH }}+1))" >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
+      shell: bash
       uses: docker/setup-buildx-action@v2
 
     - name: Log in to Docker Hub
+      shell: bash
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Extract metadata (tags, labels) for Docker
+      shell: bash
       id: meta
       uses: docker/metadata-action@v4
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
     - name: Build and push Docker image
+      shell: bash
       uses: docker/build-push-action@v4
       with:
         context: "{{defaultContext}}"
@@ -103,13 +117,16 @@ runs:
         labels: ${{ steps.meta.outputs.labels }}
     
     - name: Check out the repo
+      shell: bash
       uses: actions/checkout@v3
       
     - name: Create folder if necessary
+      shell: bash
       if: ${{ env.FILE_EXISTS == 'false' }} 
       run: mkdir -p .github/actions/version-build-push-docker
     
     - name: write_json
+      shell: bash
       id: create-json
       uses: jsdaniell/create-json@v1.2.2
       with:
@@ -117,6 +134,7 @@ runs:
         json: '{ "major": ${{ env.MAJOR }}, "minor": ${{ env.MINOR }}, "patch": ${{ env.PATCH }} }'
         dir: '.github/actions/version-build-push-docker/'
           
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: update version.json (automated)
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      shell: bash
+      with:
+        commit_message: update version.json (automated)
