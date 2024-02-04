@@ -27,6 +27,7 @@ runs:
       uses: actions/checkout@v4
 
     - name: Get Docker Image Version
+      shell: bash
       id: version
       run: |
         IMAGE_NAME="your-docker-registry/your-image-name"
@@ -42,6 +43,7 @@ runs:
         echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
 
     - name: Show Docker Image Version
+      shell: bash
       run: |
         echo "Patch Version: $PATCH_VERSION"
         echo "Minor Version: $MINOR_VERSION"
