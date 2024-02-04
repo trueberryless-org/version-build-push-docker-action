@@ -8,7 +8,7 @@ When writing the commit message, remember to include a second message with three
 
 ```bash
 git commit -m "some changes" -m "version-patch"
-git commit -m "heacy changes" -m "version-minor"
+git commit -m "heavy changes" -m "version-minor"
 git commit -m "damn changes" -m "version-major"
 ```
 
