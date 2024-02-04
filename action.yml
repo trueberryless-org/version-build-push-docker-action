@@ -27,26 +27,26 @@ runs:
       uses: actions/checkout@v4
 
     - name: Get Docker Image Version
-        id: version
-        run: |
-          IMAGE_NAME="your-docker-registry/your-image-name"
-          DOCKER_TAGS=$(docker tags --format '{{.Name}}' $IMAGE_NAME)
-          
-          # Assuming tags follow semantic versioning format (e.g., 1.2.3)
-          PATCH_VERSION=$(echo "$DOCKER_TAGS" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
-          MINOR_VERSION=$(echo "$PATCH_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
-          MAJOR_VERSION=$(echo "$MINOR_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
+      id: version
+      run: |
+        IMAGE_NAME="your-docker-registry/your-image-name"
+        DOCKER_TAGS=$(docker tags --format '{{.Name}}' $IMAGE_NAME)
+        
+        # Assuming tags follow semantic versioning format (e.g., 1.2.3)
+        PATCH_VERSION=$(echo "$DOCKER_TAGS" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
+        MINOR_VERSION=$(echo "$PATCH_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
+        MAJOR_VERSION=$(echo "$MINOR_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
 
-          echo "PATCH_VERSION=$PATCH_VERSION" >> $GITHUB_ENV
-          echo "MINOR_VERSION=$MINOR_VERSION" >> $GITHUB_ENV
-          echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
+        echo "PATCH_VERSION=$PATCH_VERSION" >> $GITHUB_ENV
+        echo "MINOR_VERSION=$MINOR_VERSION" >> $GITHUB_ENV
+        echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
 
-      - name: Show Docker Image Version
-        run: |
-          echo "Patch Version: $PATCH_VERSION"
-          echo "Minor Version: $MINOR_VERSION"
-          echo "Major Version: $MAJOR_VERSION"
-    
+    - name: Show Docker Image Version
+      run: |
+        echo "Patch Version: $PATCH_VERSION"
+        echo "Minor Version: $MINOR_VERSION"
+        echo "Major Version: $MAJOR_VERSION"
+  
     # - name: Check if file exists
     #   shell: bash
     #   run: |
