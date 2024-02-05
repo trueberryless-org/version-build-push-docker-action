@@ -1,10 +1,10 @@
 #!/bin/sh -l
 
 # Read inputs from environment variables
-IMAGE_NAME=$INPUT_IMAGE-NAME
-REGISTRY=$INPUT_REGISTRY
-DOCKER_USERNAME=$INPUT_DOCKER-USERNAME
-DOCKER_PASSWORD=$INPUT_DOCKER-PASSWORD
+IMAGE_NAME=$INPUT_image_name
+REGISTRY=$INPUT_registry
+DOCKER_USERNAME=$INPUT_docker_username
+DOCKER_PASSWORD=$INPUT_docker_password
 
 # Your Docker build and push logic here
 # Use $IMAGE_NAME, $REGISTRY, $DOCKER_USERNAME, $DOCKER_PASSWORD as needed
@@ -17,10 +17,10 @@ MINOR_VERSION="2"
 PATCH_VERSION=$IMAGE_NAME # test
 
 # Set outputs
-echo "::set-output name=current-version::$CURRENT_VERSION"
-echo "::set-output name=major-version::$MAJOR_VERSION"
-echo "::set-output name=minor-version::$MINOR_VERSION"
-echo "::set-output name=patch-version::$PATCH_VERSION"
+echo "current_version=$CURRENT_VERSION" >> "$GITHUB_ENV"
+echo "major_version=$MAJOR_VERSION" >> "$GITHUB_ENV"
+echo "minor_version=$MINOR_VERSION" >> "$GITHUB_ENV"
+echo "patch_version=$PATCH_VERSION" >> "$GITHUB_ENV"
 
 # #!/bin/bash
 
