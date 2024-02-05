@@ -8,7 +8,7 @@ branding:
 
 inputs:
 
-  image-name:
+  image_name:
     description: 'Author and name of image (e.g. trueberryless/mutanuq)'
     required: true
   
@@ -17,11 +17,11 @@ inputs:
     required: false
     default: 'docker.io'
   
-  docker-username:
+  docker_username:
     description: 'Username for the docker hub account where image should be published (use GitHub Secrets)'
     required: true
   
-  docker-password:
+  docker_password:
     description: 'Password for the docker hub account where image should be published (use GitHub Secrets)'
     required: true
 
