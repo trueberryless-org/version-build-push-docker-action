@@ -10,20 +10,28 @@ inputs:
 
   image-name:
     description: 'Author and name of image (e.g. trueberryless/mutanuq)'
-    required: true
+    required: false
+    default: ${{ env.GITHUB_REPOSITORY }}
   
   registry:
     description: 'Registry for versioning, storing and distributing images (e.g. docker.io)'
     required: false
     default: 'docker.io'
+
+  trigger-message:
+    description: 'The text which should be checked for trigger words (version, patch, minor, major); default: Commit Message'
+    required: false
+    default: ${{ github.event.head_commit.message }}
   
   docker-username:
     description: 'Username for the docker hub account where image should be published (use GitHub Secrets)'
-    required: true
+    required: false
+    default: ${{ secrets.DOCKER_USERNAME }}
   
   docker-password:
     description: 'Password for the docker hub account where image should be published (use GitHub Secrets)'
-    required: true
+    required: false
+    default: ${{ secrets.DOCKER_PASSWORD }}
 
 outputs:
 
@@ -45,6 +53,7 @@ runs:
   args:
     - ${{ inputs.image-name }}
     - ${{ inputs.registry }}
+    - ${{ inputs.trigger-message }}
     - ${{ inputs.docker-username }}
     - ${{ inputs.docker-password }}
     
