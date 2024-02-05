@@ -9,14 +9,19 @@ branding:
 inputs:
 
   image-name:
-    description: 'Author and name of image (e.g. trueberryless/mutanuq)'
+    description: 'Author and name of image on Docker Hub (e.g. trueberryless/mutanuq)'
     required: false
-    default: ${{ env.GITHUB_REPOSITORY }}
+    default: ${{ github.repository }}
   
   registry:
     description: 'Registry for versioning, storing and distributing images (e.g. docker.io)'
     required: false
     default: 'docker.io'
+
+  repository:
+    description: 'Base GitHub repository from which should be builded and pushed (e.g trueberryless/mutanuq)'
+    required: false
+    default: ${{ github.repository }}
 
   trigger-message:
     description: 'The text which should be checked for trigger words (version, patch, minor, major); default: Commit Message'
