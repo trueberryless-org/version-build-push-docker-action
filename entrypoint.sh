@@ -1,10 +1,10 @@
 #!/bin/sh -l
 
 # Read inputs from environment variables
-IMAGE_NAME=$INPUT_image_name
-REGISTRY=$INPUT_registry
-DOCKER_USERNAME=$INPUT_docker_username
-DOCKER_PASSWORD=$INPUT_docker_password
+IMAGE_NAME=$0
+REGISTRY=$1
+DOCKER_USERNAME=$2
+DOCKER_PASSWORD=$3
 
 # Your Docker build and push logic here
 # Use $IMAGE_NAME, $REGISTRY, $DOCKER_USERNAME, $DOCKER_PASSWORD as needed
