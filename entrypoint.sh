@@ -6,46 +6,29 @@ REGISTRY=$2
 DOCKER_USERNAME=$3
 DOCKER_PASSWORD=$4
 
-# Your Docker build and push logic here
-API_URL="https://registry.hub.docker.com/v2/repositories/$IMAGE_NAME/tags"
+# Get the latest semantic version numbers (major, minor, patch) from the docker registry image
+CURRENT_VERSION=$(docker pull $REGISTRY/$IMAGE_NAME | grep -oP "(?<=${REGISTRY}/${IMAGE_NAME}:)\d+\.\d+\.\d+")
 
-TAGS=$(curl -s "$API_URL" | jq -r '.results[].name' 2>/dev/null)
+# Parse the version components
+MAJOR_VERSION=$(echo $CURRENT_VERSION | cut -d '.' -f 1)
+MINOR_VERSION=$(echo $CURRENT_VERSION | cut -d '.' -f 2)
+PATCH_VERSION=$(echo $CURRENT_VERSION | cut -d '.' -f 3)
 
-if [ -z "$TAGS" ]; then
-  echo "Error: Unable to fetch tags from Docker Hub."
-  exit 1
-fi
-
-extract_version_numbers() {
-  IFS='.' read -ra VERSION <<< "$1"
-  MAJOR_VERSION="${VERSION[0]}"
-  MINOR_VERSION="${VERSION[1]}"
-  PATCH_VERSION="${VERSION[2]}"
-}
-
-latest_version=""
-for TAG in $TAGS; do
-  if [[ $TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    if [ -z "$latest_version" ] || version_gt "$TAG" "$latest_version"; then
-      latest_version="$TAG"
-    fi
-  fi
-done
-
-if [ -n "$latest_version" ]; then
-  extract_version_numbers "$latest_version"
-  echo "Latest version: Major $MAJOR_VERSION, Minor $MINOR_VERSION, Patch $PATCH_VERSION"
-else
-  echo "No latest versioned image found. Major 0, Minor 0, Patch 1"
-fi
-
-version_gt() {
-  test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"
-}
+# Increment the patch version
+PATCH_VERSION=$((PATCH_VERSION + 1))
 
 # Set outputs
 echo "version=v$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION" >> "$GITHUB_ENV"
 echo "version-major=$MAJOR_VERSION" >> "$GITHUB_ENV"
 echo "version-minor=$MINOR_VERSION" >> "$GITHUB_ENV"
 echo "version-patch=$PATCH_VERSION" >> "$GITHUB_ENV"
+
+# Checkout the original repo
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
+
+# Build a docker image and push it to the registry with the new patch version
+docker build -t $REGISTRY/$IMAGE_NAME:v$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION .
+docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $REGISTRY
+docker push $REGISTRY/$IMAGE_NAME:v$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION
 
