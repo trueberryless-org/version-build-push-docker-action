@@ -21,139 +21,147 @@ inputs:
     required: true
 
 runs:
-  using: "composite"
-  steps:
-    - name: Check out the repo
-      uses: actions/checkout@v4
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.IMAGE_NAME }}
+    - ${{ inputs.REGISTRY }}
+    - ${{ inputs.DOCKER_USERNAME }}
+    - ${{ inputs.DOCKER_PASSWORD }}
+    
+  # using: "composite"
+  # steps:
+  #   - name: Check out the repo
+  #     uses: actions/checkout@v4
 
-    - name: Get Docker Image Version
-      shell: bash
-      id: version
-      run: |
-        DOCKER_TAGS=$(docker pull --quiet --all-tags $IMAGE_NAME)
+  #   - name: Get Docker Image Version
+  #     shell: bash
+  #     id: version
+  #     run: |
+  #       DOCKER_TAGS=$(docker pull --quiet --all-tags $IMAGE_NAME)
         
-        # Assuming tags follow semantic versioning format (e.g., 1.2.3)
-        PATCH_VERSION=$(echo "$DOCKER_TAGS" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
-        MINOR_VERSION=$(echo "$PATCH_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
-        MAJOR_VERSION=$(echo "$MINOR_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
+  #       # Assuming tags follow semantic versioning format (e.g., 1.2.3)
+  #       PATCH_VERSION=$(echo "$DOCKER_TAGS" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
+  #       MINOR_VERSION=$(echo "$PATCH_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
+  #       MAJOR_VERSION=$(echo "$MINOR_VERSION" | awk -F. '{$NF=""; OFS="."} NF--' | sed 's/.$//')
 
-        echo "PATCH_VERSION=$PATCH_VERSION" >> $GITHUB_ENV
-        echo "MINOR_VERSION=$MINOR_VERSION" >> $GITHUB_ENV
-        echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
+  #       echo "PATCH_VERSION=$PATCH_VERSION" >> $GITHUB_ENV
+  #       echo "MINOR_VERSION=$MINOR_VERSION" >> $GITHUB_ENV
+  #       echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
 
-    - name: Show Docker Image Version
-      shell: bash
-      run: |
-        echo "Patch Version: $PATCH_VERSION"
-        echo "Minor Version: $MINOR_VERSION"
-        echo "Major Version: $MAJOR_VERSION"
+  #   - name: Show Docker Image Version
+  #     shell: bash
+  #     run: |
+  #       echo "Patch Version: $PATCH_VERSION"
+  #       echo "Minor Version: $MINOR_VERSION"
+  #       echo "Major Version: $MAJOR_VERSION"
   
-    # - name: Check if file exists
-    #   shell: bash
-    #   run: |
-    #     if [ -f .github/actions/version-build-push-docker/version.json ]; then
-    #       echo "File exists"
-    #       echo "FILE_EXISTS=true" >> $GITHUB_ENV
-    #     else
-    #       echo "File does not exist"
-    #       echo "FILE_EXISTS=false" >> $GITHUB_ENV
-    #     fi
-    
-    # - name: read_json
-    #   if: ${{ env.FILE_EXISTS == 'true' }}
-    #   id: version
-    #   uses: zoexx/github-action-json-file-properties@release
-    #   with:
-    #     file_path: ".github/actions/version-build-push-docker/version.json"
-        
-    # - name: save environment variables
-    #   shell: bash
-    #   if: ${{ env.FILE_EXISTS == 'true' }}
-    #   run: |
-    #     echo "MAJOR=${{steps.version.outputs.major}}" >> $GITHUB_ENV
-    #     echo "MINOR=${{steps.version.outputs.minor}}" >> $GITHUB_ENV
-    #     echo "PATCH=${{steps.version.outputs.patch}}" >> $GITHUB_ENV
-        
-    # - name: create environment variables
-    #   shell: bash
-    #   if: ${{ env.FILE_EXISTS == 'false' }}
-    #   run: |
-    #     echo "MAJOR=0" >> $GITHUB_ENV
-    #     echo "MINOR=0" >> $GITHUB_ENV
-    #     echo "PATCH=0" >> $GITHUB_ENV          
-    
-    - name: echo environment variables
-      shell: bash
-      run: |
-        echo ${{ env.MINOR }}
-        echo ${{ env.MINOR }}
-        echo ${{ env.MINOR }}
-    
-    - name: Major version
-      shell: bash
-      if: contains(github.event.head_commit.message, 'major')
-      run: |
-        echo "New major version"
-        echo "MAJOR=$((${{ env.MAJOR }}+1))" >> $GITHUB_ENV
-        echo "MINOR=0" >> $GITHUB_ENV
-        echo "PATCH=0" >> $GITHUB_ENV
-
-    - name: Minor version
-      shell: bash
-      if: contains(github.event.head_commit.message, 'minor')
-      run: |
-        echo "New minor version"
-        echo "MINOR=$((${{ env.MINOR }}+1))" >> $GITHUB_ENV
-        echo "PATCH=0" >> $GITHUB_ENV
+  # - name: Check if file exists
+  #   shell: bash
+  #   run: |
+  #     if [ -f .github/actions/version-build-push-docker/version.json ]; then
+  #       echo "File exists"
+  #       echo "FILE_EXISTS=true" >> $GITHUB_ENV
+  #     else
+  #       echo "File does not exist"
+  #       echo "FILE_EXISTS=false" >> $GITHUB_ENV
+  #     fi
+  
+  # - name: read_json
+  #   if: ${{ env.FILE_EXISTS == 'true' }}
+  #   id: version
+  #   uses: zoexx/github-action-json-file-properties@release
+  #   with:
+  #     file_path: ".github/actions/version-build-push-docker/version.json"
       
-    - name: Patch version
-      shell: bash
-      if: contains(github.event.head_commit.message, 'patch') || github.event_name == 'workflow_dispatch'
-      run: |
-        echo "New patch version"
-        echo "PATCH=$((${{ env.PATCH }}+1))" >> $GITHUB_ENV
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ inputs.DOCKER_USERNAME }}
-        password: ${{ inputs.DOCKER_PASSWORD }}
-
-    - name: Extract metadata (tags, labels) for Docker
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ inputs.REGISTRY }}/${{ inputs.IMAGE_NAME }}
-
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: "{{defaultContext}}"
-        push: true
-        tags: |
-          ${{ inputs.IMAGE_NAME }}:${{ env.MAJOR}}.${{ env.MINOR}}.${{ env.PATCH}}
-          ${{ inputs.IMAGE_NAME }}:latest
-        labels: ${{ steps.meta.outputs.labels }}
-    
-    - name: Check out the repo
-      uses: actions/checkout@v4
+  # - name: save environment variables
+  #   shell: bash
+  #   if: ${{ env.FILE_EXISTS == 'true' }}
+  #   run: |
+  #     echo "MAJOR=${{steps.version.outputs.major}}" >> $GITHUB_ENV
+  #     echo "MINOR=${{steps.version.outputs.minor}}" >> $GITHUB_ENV
+  #     echo "PATCH=${{steps.version.outputs.patch}}" >> $GITHUB_ENV
       
-    - name: Create folder if necessary
-      shell: bash
-      if: ${{ env.FILE_EXISTS == 'false' }} 
-      run: mkdir -p .github/actions/version-build-push-docker
+  # - name: create environment variables
+  #   shell: bash
+  #   if: ${{ env.FILE_EXISTS == 'false' }}
+  #   run: |
+  #     echo "MAJOR=0" >> $GITHUB_ENV
+  #     echo "MINOR=0" >> $GITHUB_ENV
+  #     echo "PATCH=0" >> $GITHUB_ENV          
     
-    - name: write_json
-      id: create-json
-      uses: jsdaniell/create-json@v1
-      with:
-        name: "version.json"
-        json: '{ "major": ${{ env.MAJOR }}, "minor": ${{ env.MINOR }}, "patch": ${{ env.PATCH }} }'
-        dir: '.github/actions/version-build-push-docker/'
+  #   - name: echo environment variables
+  #     shell: bash
+  #     run: |
+  #       echo ${{ env.MINOR }}
+  #       echo ${{ env.MINOR }}
+  #       echo ${{ env.MINOR }}
+    
+  #   - name: Major version
+  #     shell: bash
+  #     if: contains(github.event.head_commit.message, 'major')
+  #     run: |
+  #       echo "New major version"
+  #       echo "MAJOR=$((${{ env.MAJOR }}+1))" >> $GITHUB_ENV
+  #       echo "MINOR=0" >> $GITHUB_ENV
+  #       echo "PATCH=0" >> $GITHUB_ENV
+
+  #   - name: Minor version
+  #     shell: bash
+  #     if: contains(github.event.head_commit.message, 'minor')
+  #     run: |
+  #       echo "New minor version"
+  #       echo "MINOR=$((${{ env.MINOR }}+1))" >> $GITHUB_ENV
+  #       echo "PATCH=0" >> $GITHUB_ENV
+      
+  #   - name: Patch version
+  #     shell: bash
+  #     if: contains(github.event.head_commit.message, 'patch') || github.event_name == 'workflow_dispatch'
+  #     run: |
+  #       echo "New patch version"
+  #       echo "PATCH=$((${{ env.PATCH }}+1))" >> $GITHUB_ENV
+
+  #   - name: Set up Docker Buildx
+  #     uses: docker/setup-buildx-action@v3
+
+  #   - name: Log in to Docker Hub
+  #     uses: docker/login-action@v3
+  #     with:
+  #       username: ${{ inputs.DOCKER_USERNAME }}
+  #       password: ${{ inputs.DOCKER_PASSWORD }}
+
+  #   - name: Extract metadata (tags, labels) for Docker
+  #     id: meta
+  #     uses: docker/metadata-action@v5
+  #     with:
+  #       images: ${{ inputs.REGISTRY }}/${{ inputs.IMAGE_NAME }}
+
+  #   - name: Build and push Docker image
+  #     uses: docker/build-push-action@v5
+  #     with:
+  #       context: "{{defaultContext}}"
+  #       push: true
+  #       tags: |
+  #         ${{ inputs.IMAGE_NAME }}:${{ env.MAJOR}}.${{ env.MINOR}}.${{ env.PATCH}}
+  #         ${{ inputs.IMAGE_NAME }}:latest
+  #       labels: ${{ steps.meta.outputs.labels }}
+    
+  #   - name: Check out the repo
+  #     uses: actions/checkout@v4
+      
+  #   - name: Create folder if necessary
+  #     shell: bash
+  #     if: ${{ env.FILE_EXISTS == 'false' }} 
+  #     run: mkdir -p .github/actions/version-build-push-docker
+    
+  #   - name: write_json
+  #     id: create-json
+  #     uses: jsdaniell/create-json@v1
+  #     with:
+  #       name: "version.json"
+  #       json: '{ "major": ${{ env.MAJOR }}, "minor": ${{ env.MINOR }}, "patch": ${{ env.PATCH }} }'
+  #       dir: '.github/actions/version-build-push-docker/'
           
-    - uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: update version.json (automated)
+  #   - uses: stefanzweifel/git-auto-commit-action@v5
+  #     with:
+  #       commit_message: update version.json (automated)
