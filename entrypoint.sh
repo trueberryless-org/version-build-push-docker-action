@@ -43,17 +43,9 @@ version_gt() {
   test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"
 }
 
-# Assuming you determine the version during the build/push process
-# Replace the following lines with your actual version determination logic
-
 # Set outputs
 echo "version=v$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION" >> "$GITHUB_ENV"
 echo "version-major=$MAJOR_VERSION" >> "$GITHUB_ENV"
 echo "version-minor=$MINOR_VERSION" >> "$GITHUB_ENV"
 echo "version-patch=$PATCH_VERSION" >> "$GITHUB_ENV"
 
-
-
-# echo "PATCH_VERSION=$PATCH_VERSION" >> $GITHUB_ENV
-# echo "MINOR_VERSION=$MINOR_VERSION" >> $GITHUB_ENV
-# echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
