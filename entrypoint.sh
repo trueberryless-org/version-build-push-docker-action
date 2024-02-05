@@ -17,10 +17,10 @@ MINOR_VERSION="2"
 PATCH_VERSION=$IMAGE_NAME # test
 
 # Set outputs
-echo "current_version=$CURRENT_VERSION" >> "$GITHUB_ENV"
-echo "major_version=$MAJOR_VERSION" >> "$GITHUB_ENV"
-echo "minor_version=$MINOR_VERSION" >> "$GITHUB_ENV"
-echo "patch_version=$PATCH_VERSION" >> "$GITHUB_ENV"
+echo "version=$CURRENT_VERSION" >> "$GITHUB_ENV"
+echo "version-major=$MAJOR_VERSION" >> "$GITHUB_ENV"
+echo "version-minor=$MINOR_VERSION" >> "$GITHUB_ENV"
+echo "version-patch=$PATCH_VERSION" >> "$GITHUB_ENV"
 
 # #!/bin/bash
 
