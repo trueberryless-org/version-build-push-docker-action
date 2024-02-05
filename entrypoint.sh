@@ -11,10 +11,10 @@ DOCKER_PASSWORD=$4
 
 # Assuming you determine the version during the build/push process
 # Replace the following lines with your actual version determination logic
-CURRENT_VERSION="v1.2.3"
-MAJOR_VERSION="1"
-MINOR_VERSION="2"
-PATCH_VERSION=$IMAGE_NAME # test
+CURRENT_VERSION=$IMAGE_NAME
+MAJOR_VERSION=$REGISTRY
+MINOR_VERSION=$DOCKER_USERNAME
+PATCH_VERSION=$DOCKER_PASSWORD
 
 # Set outputs
 echo "version=$CURRENT_VERSION" >> "$GITHUB_ENV"
