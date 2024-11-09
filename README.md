@@ -65,3 +65,9 @@ jobs:
 ```
 
 When you trigger the action by workflow dispatch (by manually clicking `run action` in the actions tab), it automatically creates a `patch` version.
+
+## License
+
+Licensed under the MIT license, Copyright © trueberryless-org.
+
+See [LICENSE](/LICENSE) for more information.
